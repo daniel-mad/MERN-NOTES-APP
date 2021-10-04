@@ -8,6 +8,7 @@
 .intro-text {
   width: 100%;
   text-align: center;
+  text-shadow: 3px 1px 2px #127ba3;
 }
 
 .title {

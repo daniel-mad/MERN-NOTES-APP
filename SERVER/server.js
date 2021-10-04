@@ -1,26 +1,27 @@
-const express = require("express")
-const notes = require("./Data/notes")
-const dotent = require("dotenv")
+const express = require("express");
+const notes = require("./Data/notes");
+const dotent = require("dotenv");
+const connectDB = require("./config/db");
+const userRoutes = require("./routes/userRoutes")
 
-const app = express()
-dotent.config()
+const app = express();
+dotent.config();
+connectDB();
 
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 5000;
+app.use(express.json())
 
-app.get('/', (req, res)=>{
-    res.send("Hello World!")
-})
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
 
-app.get('/api/notes', (req, res)=>{
-    res.json(notes)
-})
-
-app.get('/api/notes/:id', (req, res)=>{
-    const note = notes.find(note => note._id === req.params.id)
-    res.json(note)
-})
+app.get("/api/notes", (req, res) => {
+  res.json(notes);
+});
 
 
-app.listen(PORT, ()=>{
-    console.log(`Server listening on port ${PORT}`);
-})
+app.use('/api/users', userRoutes)
+
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
+});
