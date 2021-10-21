@@ -1,32 +1,43 @@
 import React, { useEffect, useState } from "react";
 import { Accordion, Badge, Button, Card } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import MainScreen from "../../components/MainScreen";
-import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { listNotes } from "../../actions/notesAction";
+import Loading from "../../components/Loading";
+import ErrorMessage from "../../components/ErrorMessage";
 
 const MyNotes = () => {
-  const [notes, setNotes] = useState([]);
+  const dispatch = useDispatch();
+  const noteList = useSelector((state) => state.noteList);
+  const { loading, notes, error } = noteList;
+
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
+
+  const history = useHistory();
+
   const deleteHandler = (id) => {
     if (window.confirm("Are you sure?")) {
       console.log(id);
     }
   };
 
-  const fetchNotes = async () => {
-    const { data } = await axios.get("/api/notes");
-    setNotes(data);
-  };
-
   useEffect(() => {
-    fetchNotes();
-  }, []);
+    if (!userInfo) {
+      history.push("/");
+    }
+    dispatch(listNotes());
+  }, [dispatch]);
 
   return (
-    <MainScreen title="Welcom Back Daniel Madhala...">
+    <MainScreen title={`Welcom Back ${userInfo.name}`}>
       <Link to="createnote">
         <Button size="lg">Create New Note</Button>
       </Link>
-      {notes.map((note) => (
+      {error && <ErrorMessage varient="danger">{error}</ErrorMessage>}
+      {loading && <Loading />}
+      {notes?.reverse().map((note) => (
         <Accordion key={note._id}>
           <Card style={{ margin: "1rem 0" }}>
             <Card.Header style={{ display: "flex" }}>
@@ -63,7 +74,8 @@ const MyNotes = () => {
                 <blockquote className="blockquote mb-0">
                   <p>{note.content}</p>
                   <footer className="blockquote-footer">
-                    Created On - {new Date().toLocaleString("HE")}
+                    Created On -{" "}
+                    {new Date(note.createdAt).toLocaleDateString("en-GB")}
                   </footer>
                 </blockquote>
               </Card.Body>
